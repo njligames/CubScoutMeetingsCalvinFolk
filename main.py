@@ -1,5 +1,6 @@
 from ics import Calendar, Event
 from datetime import datetime
+from pytz import timezone
 
 # Schedule data
 schedule = [
@@ -19,7 +20,7 @@ schedule = [
 # Time details for meetings (all meetings are 6:30 PM to 7:30 PM EST)
 start_time = "18:30"
 end_time = "19:30"
-timezone = "America/New_York"
+eastern = timezone('America/New_York')
 
 # Initialize a calendar
 calendar = Calendar()
@@ -28,15 +29,14 @@ calendar = Calendar()
 for entry in schedule:
     event = Event()
     event.name = f"{entry['title']} ({entry['type']})"
-    event.begin = datetime.strptime(f"{entry['date']} {start_time}", "%d %b %Y %H:%M")
-    event.end = datetime.strptime(f"{entry['date']} {end_time}", "%d %b %Y %H:%M")
+    event.begin = eastern.localize(datetime.strptime(f"{entry['date']} {start_time}", "%d %b %Y %H:%M"))
+    event.end = eastern.localize(datetime.strptime(f"{entry['date']} {end_time}", "%d %b %Y %H:%M"))
     event.description = entry['agenda'] if entry['agenda'] else f"{entry['title']} Meeting"
     event.location = "Online"
-    event.timezone = timezone
     calendar.events.add(event)
 
 # Save the ICS file
 with open("meeting_schedule.ics", 'w') as f:
     f.writelines(calendar)
 
-print("ICS file created successfully!")
+print("ICS file created successfully with the correct time zone!")
